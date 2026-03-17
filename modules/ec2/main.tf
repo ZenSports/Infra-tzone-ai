@@ -118,7 +118,7 @@ resource "aws_elb" "elb" {
     ssl_certificate_id    = var.ssl_certificate_arn
   }
   health_check {
-    target              = each.value.port
+    target              = "TCP:${each.value.port}"
     interval            = 30
     healthy_threshold   = 2
     unhealthy_threshold = 2
