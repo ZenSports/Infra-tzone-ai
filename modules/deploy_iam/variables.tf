@@ -40,3 +40,8 @@ variable "tags" {
     "Environment" = "stage"
   }
 }
+variable "github_environment" {
+  description = "GitHub Actions environment name (e.g. stage, prod)"
+  type        = string
+  default     = ""
+}

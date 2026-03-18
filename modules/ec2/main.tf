@@ -129,18 +129,32 @@ resource "aws_elb" "elb" {
   }
 }
 resource "aws_launch_template" "lt" {
-  for_each      = { for st in local.server_types : st.name => st }
+  for_each = { for st in local.server_types : st.name => st }
+
   name_prefix   = "lt-${each.key}-"
-  # extract a valid ami-id token from the provided value (handles hidden chars); fallback to trimmed raw value
-  image_id = try(
+  image_id      = try(
     regexall("(ami-[0-9a-fA-F]{8,17})", lookup(var.ami_map, each.key))[0][0],
     trimspace(lookup(var.ami_map, each.key)),
   )
-  instance_type = var.instance_type
+  instance_type          = var.instance_type
   vpc_security_group_ids = [aws_security_group.Ec2InstanceConnect.id]
+
   iam_instance_profile {
-    arn = aws_iam_instance_profile.ssm.arn
+    arn = var.ec2_instance_profile_arn
   }
+
+  user_data = base64encode(<<-EOF
+    #!/bin/bash
+    set -eu
+    apt-get update -qq
+    apt-get install -y unzip curl
+    curl -s https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip -o /tmp/awscliv2.zip
+    unzip -q /tmp/awscliv2.zip -d /tmp
+    /tmp/aws/install
+    rm -rf /tmp/awscliv2.zip /tmp/aws
+  EOF
+  )
+
   tag_specifications {
     resource_type = "instance"
     tags = {

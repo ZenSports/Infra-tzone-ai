@@ -36,3 +36,7 @@
    description = "Security group ID for RDS access"
    type        = string
  }  
+variable "ec2_instance_profile_arn" {
+  description = "IAM instance profile ARN for EC2 instances"
+  type        = string
+}

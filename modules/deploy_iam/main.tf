@@ -41,7 +41,10 @@ data "aws_iam_policy_document" "github_assume_role" {
     condition {
       test     = "StringLike"
       variable = "token.actions.githubusercontent.com:sub"
-      values   = ["repo:${var.github_org}/${var.github_repo}:ref:refs/heads/${var.github_branch == "*" ? "*" : var.github_branch}"]
+      values   = [
+        "repo:${var.github_org}/${var.github_repo}:environment:${var.github_environment}",
+        "repo:${var.github_org}/${var.github_repo}:ref:refs/heads/${var.github_branch}",
+      ]
     }
   }
 }
@@ -54,6 +57,18 @@ resource "aws_iam_role" "github_actions" {
 }
 
 data "aws_iam_policy_document" "github_actions_deploy" {
+
+    # SSM document — no tag condition needed
+    statement {
+    sid    = "SSMSendCommandDocument"
+    effect = "Allow"
+    actions = [
+      "ssm:SendCommand",
+    ]
+    resources = [
+      "arn:${data.aws_partition.current.partition}:ssm:${data.aws_region.current.name}::document/AWS-RunShellScript",
+    ]
+  }
   # SSM — send commands and read results
   statement {
     sid    = "SSMSendCommand"
@@ -65,8 +80,7 @@ data "aws_iam_policy_document" "github_actions_deploy" {
       "ssm:DescribeInstanceInformation",
     ]
     resources = [
-      "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:instance/*",
-      "arn:${data.aws_partition.current.partition}:ssm:${data.aws_region.current.name}::document/AWS-RunShellScript",
+      "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:instance/*"
     ]
 
     condition {
