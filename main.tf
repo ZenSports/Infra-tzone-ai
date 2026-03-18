@@ -45,6 +45,7 @@ module "ec2" {
   instance_type         = var.instance_type
   cloudflare_ipv4       = var.cloudflare_ipv4
   rds_security_group_id = module.rds.db_security_group_id
+  ec2_instance_profile_arn = module.deploy_iam.ec2_instance_profile_arn
 }
 
 module "rds" {
@@ -79,4 +80,21 @@ module "deploy_iam" {
   github_branch = var.github_branch
   asg_name      = var.asg_name
   tags          = local.common_tags
+  github_environment = var.github_environment
+}
+
+
+module "documentdb" {
+  source = "./modules/documentdb"
+
+  cluster_identifier         = var.docdb_cluster_identifier
+  vpc_id                     = module.vpc.vpc_id
+  private_subnets            = module.vpc.private_subnets
+  allowed_security_group_ids = [module.ec2.Ec2InstanceConnect_security_group_id]
+
+  master_username = var.docdb_master_username
+  master_password = var.docdb_master_password
+
+  instance_class  = var.docdb_instance_class
+  instance_count  = var.docdb_instance_count
 }

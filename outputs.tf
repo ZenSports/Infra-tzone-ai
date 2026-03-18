@@ -60,3 +60,15 @@ output "ec2_instance_role_arn" {
   description = "ARN of the IAM role attached to EC2 instances"
   value       = module.deploy_iam.ec2_instance_role_arn
 }
+
+
+output "docdb_connection_config" {
+  description = "DocumentDB connection details for application use"
+  value       = module.documentdb.docdb_connection_config
+  sensitive   = true
+}
+
+output "docdb_cluster_endpoint" {
+  description = "DocumentDB writer endpoint"
+  value       = module.documentdb.cluster_endpoint
+}

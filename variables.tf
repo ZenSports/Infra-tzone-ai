@@ -51,7 +51,7 @@ variable "ami_ids" {
 variable "instance_type" {
   description = "Instance type for EC2"
   type        = string
-  default     = "t3.micro"
+  default     = "t3.medium"
 }
 
 variable "cloudflare_ipv4" {
@@ -109,11 +109,51 @@ variable "github_repo" {
 variable "github_branch" {
   description = "Branch that is allowed to assume the deploy role"
   type        = string
-  default     = "stage"
+  default     = "*"
 }
 
 variable "asg_name" {
   description = "Name of the Auto Scaling Group instances are deployed into"
   type        = string
-  default     = "api-asg"
+  default     = "asg-api"
+}
+
+variable "github_environment" {
+  description = "GitHub Actions environment name (e.g. stage, prod) - optional, used for additional scoping of deploy role"
+  type        = string
+  default     = "stage"
+}
+
+################################################################################
+# DocumentDB
+################################################################################
+
+variable "docdb_cluster_identifier" {
+  description = "Identifier for the DocumentDB cluster"
+  type        = string
+  default     = "vipplay-docdb"
+}
+
+variable "docdb_master_username" {
+  description = "Master username for DocumentDB"
+  type        = string
+  default     = "dbadmin"
+}
+
+variable "docdb_master_password" {
+  description = "Master password for DocumentDB"
+  type        = string
+  sensitive   = true
+}
+
+variable "docdb_instance_class" {
+  description = "Instance class for DocumentDB"
+  type        = string
+  default     = "db.t3.medium"
+}
+
+variable "docdb_instance_count" {
+  description = "Number of DocumentDB instances"
+  type        = number
+  default     = 1
 }
